@@ -15,11 +15,39 @@ return {
   },
   opts = {
     filesystem = {
+      filtered_items = {
+        visible = true, -- show filtered items as "dimmed"
+        hide_dotfiles = false, -- show dotfiles
+        hide_gitignored = false,
+        hide_hidden = false, -- for Windows support
+      },
       window = {
         mappings = {
           ['\\'] = 'close_window',
+          ['t'] = 'open_tabnew', -- open file in new tab
+          ['w'] = 'open',
         },
       },
     },
   },
+
+  config = function(_, opts)
+    require('neo-tree').setup(opts)
+
+    -- Make Neo-tree transparent
+    vim.api.nvim_create_autocmd('ColorScheme', {
+      callback = function()
+        vim.cmd [[
+          highlight NeoTreeNormal guibg=NONE ctermbg=NONE
+          highlight NeoTreeNormalNC guibg=NONE ctermbg=NONE
+        ]]
+      end,
+    })
+
+    -- Also apply transparency right away (in case colorscheme already loaded)
+    vim.cmd [[
+      highlight NeoTreeNormal guibg=NONE ctermbg=NONE
+      highlight NeoTreeNormalNC guibg=NONE ctermbg=NONE
+    ]]
+  end,
 }
