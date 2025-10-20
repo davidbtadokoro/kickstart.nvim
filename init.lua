@@ -709,6 +709,29 @@ require('lazy').setup({
             },
           },
         },
+        texlab = {
+          settings = {
+            texlab = {
+              auxDirectory = 'build', -- optional: where auxiliary files go
+              bibtexFormatter = 'texlab',
+              build = {
+                executable = 'latexmk',
+                args = { '-pdf', '-interaction=nonstopmode', '-synctex=1', '%f' },
+                onSave = true,
+                forwardSearchAfter = true,
+              },
+              chktex = {
+                onEdit = true,
+                onOpenAndSave = true,
+              },
+              forwardSearch = {
+                executable = 'zathura', -- or your PDF viewer
+                args = { '--synctex-forward', '%l:1:%f', '%p' },
+              },
+            },
+          },
+          filetypes = { 'tex' }, -- optional, makes sure it attaches only to LaTeX files
+        },
       }
 
       -- Ensure the servers and tools above are installed
@@ -965,6 +988,7 @@ require('lazy').setup({
         --  If you are experiencing weird indenting issues, add the language to
         --  the list of additional_vim_regex_highlighting and disabled languages for indent.
         additional_vim_regex_highlighting = { 'ruby' },
+        disable = { 'latex' },
       },
       indent = { enable = true, disable = { 'ruby' } },
     },
