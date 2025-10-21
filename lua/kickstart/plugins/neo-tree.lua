@@ -22,9 +22,20 @@ return {
         hide_hidden = false, -- for Windows support
       },
       window = {
+        position = 'float',
+        popup = {
+          size = {
+            width = 0.8, -- 80% of editor width
+            height = 0.8, -- 80% of editor height
+          },
+          -- Optional: add a border
+          border = 'rounded',
+          -- Center the float automatically
+          -- Neo-tree centers by default when using float
+        },
         mappings = {
           ['\\'] = 'close_window',
-          ['t'] = 'open_tabnew', -- open file in new tab
+          ['t'] = 'open_tabnew',
           ['w'] = 'open',
         },
       },
