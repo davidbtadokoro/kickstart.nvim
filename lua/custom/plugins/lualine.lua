@@ -153,13 +153,13 @@ return {
 
     -- Insert mid section. You can make any number of sections in neovim :)
     -- for lualine it's any number greater then 2
-    ins_left {
-      function()
-        return '%='
-      end,
-    }
+    -- ins_left {
+    --   function()
+    --     return '%='
+    --   end,
+    -- }
 
-    ins_left {
+    ins_right {
       -- Lsp server name .
       function()
         local msg = 'No Active Lsp'
@@ -177,14 +177,6 @@ return {
         return msg
       end,
       icon = ' LSP:',
-      color = { fg = '#ffffff', gui = 'bold' },
-    }
-
-    -- Add components to right sections
-    ins_right {
-      'o:encoding', -- option component same as &encoding in viml
-      fmt = string.upper, -- I'm not sure why it's upper case either ;)
-      cond = conditions.hide_in_width,
       color = { fg = colors.green, gui = 'bold' },
     }
 
@@ -194,6 +186,14 @@ return {
       icons_enabled = false, -- I think icons are cool but Eviline doesn't have them. sigh
       color = { fg = colors.green, gui = 'bold' },
     }
+
+    -- Add components to right sections
+    -- ins_right {
+    --   'o:encoding', -- option component same as &encoding in viml
+    --   fmt = string.upper, -- I'm not sure why it's upper case either ;)
+    --   cond = conditions.hide_in_width,
+    --   color = { fg = colors.green, gui = 'bold' },
+    -- }
 
     ins_right {
       'branch',

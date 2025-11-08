@@ -214,6 +214,7 @@ vim.keymap.set('n', '<leader><leader>x', '<cmd>source %<CR>', { desc = 'Execute 
 vim.keymap.set('n', '<leader>x', '<cmd>.lua<CR>', { desc = 'Execute current line' })
 vim.keymap.set('v', '<leader>x', ':lua<CR>', { desc = 'Execute current selection' })
 vim.keymap.set('v', '<leader>x', ':lua<CR>', { desc = 'Execute current selection' })
+vim.keymap.set('n', '<C-n>', ':tabnew<CR>', { desc = 'Spawn new tab' })
 --
 
 -- [[ Basic Autocommands ]]
@@ -434,10 +435,95 @@ require('lazy').setup({
       pcall(require('telescope').load_extension, 'fzf')
       pcall(require('telescope').load_extension, 'ui-select')
 
+      --------------------------------------------------------------------
+      -- 🔍 Custom picker: show keymaps with RHS (the actual mapping target)
+      --------------------------------------------------------------------
+      local pickers = require 'telescope.pickers'
+      local finders = require 'telescope.finders'
+      local conf = require('telescope.config').values
+
+      local function format_lhs(lhs)
+        if lhs:find('^' .. ' ') then
+          lhs = lhs:gsub('^%s', '<leader>')
+        end
+        return lhs
+      end
+
+      local function keymaps_with_rhs(opts)
+        opts = opts or {}
+        local modes = opts.modes or { 'n', 'i', 'c', 'x' }
+        local results = {}
+
+        for _, mode in ipairs(modes) do
+          for _, map in ipairs(vim.api.nvim_get_keymap(mode)) do
+            table.insert(results, {
+              mode = mode,
+              lhs = map.lhs,
+              rhs = map.rhs or '[no-rhs]',
+              desc = map.desc or '[no-desc]',
+            })
+          end
+        end
+
+        pickers
+          .new(opts, {
+            prompt_title = 'Keymaps',
+            finder = finders.new_table {
+              results = results,
+              entry_maker = function(entry)
+                local lhs_display = format_lhs(entry.lhs)
+                return {
+                  value = entry,
+                  display = string.format('%-2s │ %-30s │ %-40s │ %s', entry.mode, lhs_display, entry.desc, entry.rhs),
+                  ordinal = lhs_display .. ' ' .. (entry.desc or '') .. ' ' .. (entry.rhs or ''),
+                }
+              end,
+            },
+            sorter = conf.generic_sorter(opts),
+            attach_mappings = function(prompt_bufnr, map)
+              local action_state = require 'telescope.actions.state'
+
+              local function scroll_horiz(direction)
+                local results_win = action_state.get_current_picker(prompt_bufnr).results_win
+                vim.api.nvim_win_call(results_win, function()
+                  if direction > 0 then
+                    vim.cmd 'normal! 10zl' -- scroll right
+                  else
+                    vim.cmd 'normal! 10zh' -- scroll left
+                  end
+                end)
+              end
+
+              -- Map <C-l> (scroll right) and <C-h> (scroll left)
+              map('n', '<C-l>', function()
+                scroll_horiz(1)
+              end)
+              map('n', '<C-h>', function()
+                scroll_horiz(-1)
+              end)
+              map('i', '<C-l>', function()
+                scroll_horiz(1)
+              end)
+              map('i', '<C-h>', function()
+                scroll_horiz(-1)
+              end)
+
+              return true
+            end,
+          })
+          :find()
+      end
+
+      vim.keymap.set('n', '<leader>sk', keymaps_with_rhs, { desc = '[S]earch [K]eymaps' })
+
+      --------------------------------------------------------------------
+      -- Other Telescope keymaps
+      --------------------------------------------------------------------
+
       -- See `:help telescope.builtin`
       local builtin = require 'telescope.builtin'
       vim.keymap.set('n', '<leader>sh', builtin.help_tags, { desc = '[S]earch [H]elp' })
-      vim.keymap.set('n', '<leader>sk', builtin.keymaps, { desc = '[S]earch [K]eymaps' })
+      -- vim.keymap.set('n', '<leader>sk', builtin.keymaps, { desc = '[S]earch [K]eymaps' })
       vim.keymap.set('n', '<leader>sf', builtin.find_files, { desc = '[S]earch [F]iles' })
       vim.keymap.set('n', '<leader>ss', builtin.builtin, { desc = '[S]earch [S]elect Telescope' })
       vim.keymap.set('n', '<leader>sw', builtin.grep_string, { desc = '[S]earch current [W]ord' })
@@ -684,7 +770,7 @@ require('lazy').setup({
         -- clangd = {},
         -- gopls = {},
         pyright = {},
-        -- rust_analyzer = {},
+        rust_analyzer = {},
         -- ... etc. See `:help lspconfig-all` for a list of all the pre-configured LSPs
         --
         -- Some languages (like typescript) have entire language plugins that can be useful:
