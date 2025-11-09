@@ -6,6 +6,10 @@ vim.g.maplocalleader = ' '
 vim.g.have_nerd_font = true
 
 -- [[ VIM OVERALL OPTIONS ]]
+vim.o.tabstop = 2
+vim.o.softtabstop = 2
+vim.o.shiftwidth = 2
+vim.o.expandtab = true
 -- Make line numbers default
 vim.o.number = true
 -- Add relative line numbers, to help with jumping
@@ -104,10 +108,10 @@ end
 local rtp = vim.opt.rtp
 rtp:prepend(lazypath)
 
--- [[ PLUGINS SET & CONFIGURATION ]]
+-- [[ PLUGINS ]]
 require('lazy').setup({
   -- Simple indentation
-  'NMAC427/guess-indent.nvim',
+  -- 'NMAC427/guess-indent.nvim',
 
   { -- Adds git related signs to the gutter, as well as utilities for managing changes
     'lewis6991/gitsigns.nvim',
@@ -593,9 +597,6 @@ require('lazy').setup({
     'echasnovski/mini.nvim',
     config = function()
       require('mini.ai').setup { n_lines = 500 }
-
-      require 'custom.plugins.mini-surround'
-
       require('mini.tabline').setup { show_close = false }
     end,
   },
@@ -616,10 +617,7 @@ require('lazy').setup({
     },
   },
 
-  require 'kickstart.plugins.indent_line',
-  require 'kickstart.plugins.neo-tree',
-
-  { import = 'custom.plugins' },
+  { import = 'plugins.extra' },
 }, {
   ui = {
     icons = vim.g.have_nerd_font and {} or {
